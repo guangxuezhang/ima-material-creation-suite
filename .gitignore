@@ -1,0 +1,23 @@
+# Secrets
+.env
+*.env
+!config/.env.example
+config/secrets.*
+!config/secrets.example
+image_api_keys.txt
+*secret*
+*token*
+
+# Runtime output
+outputs/
+work/
+states/
+*.state.json
+__pycache__/
+*.pyc
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

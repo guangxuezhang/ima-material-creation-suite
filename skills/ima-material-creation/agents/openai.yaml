@@ -1,0 +1,4 @@
+interface:
+  display_name: "IMA物料创作"
+  short_description: "从IMA检索可追溯素材，按已验证流程创作不同类型笔记"
+  default_prompt: "根据我指定的笔记类型，从IMA物料库检索相关素材并按对应流程完成创作。"
