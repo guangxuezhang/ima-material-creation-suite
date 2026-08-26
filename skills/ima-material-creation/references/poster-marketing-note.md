@@ -114,9 +114,11 @@ P2—P7 可调用 IMA `创作库／营销笔记模版／MKT-PD-01` 至 `MKT-PD-0
 
 需要产品截图时，调用用户提供并已沉淀的真实截图，直接随提示词发送给生图线路，由模型完成手机边框、使用场景、光影和整体融合；不默认改为预留位后拼。截图必须放入完整手机边框或清晰的产品使用场景，保持核心产品形象可识别且不被装饰遮挡。
 
+只要手机界面会被用户理解为真实产品，就必须把对应的真实产品截图作为本次生图输入；不能让模型依据营销模板自行补出仿真 App、知识库、书架、原文阅读或问答界面。没有真实截图时，只能使用明确的概念流程示意，例如问题卡、步骤卡和方法卡，且不能伪装成真实产品页面。生图前逐页标记手机区域属于“真实产品截图”或“概念示意”；出现《史记》《论语》等非本产品、非当前毛选主题内容时直接判定失败并重做。
+
 ## 七、生图、失败处理与质检
 
-严格执行 [image-generation-routing.md](image-generation-routing.md)：优先外置 GPT；明确失败后转内置生图；再次失败转外置 Gemini。批量任务按全部可用外置线路并行，每个任务独立记录 `queued/running/succeeded/failed/retry`，失败任务按编号自动补跑，不能把无结果当作仍在生成。
+严格执行 [image-generation-routing.md](image-generation-routing.md)：优先外置 GPT；明确失败后转内置生图；再次失败转外置 Gemini。批量任务按全部可用外置线路并行，每个任务独立记录 `queued/running/succeeded/failed/retry`。只有状态明确为 `failed` 或请求发送前失败的任务才可按编号自动补跑；`running`、`succeeded`、超时状态不明或 `timeout_needs_confirmation` 不得重试，不能把无结果假称为仍在生成，也不能用重复请求碰运气。
 
 交付前按 [quality-gates.md](quality-gates.md) 逐张、逐组和跨篇核验：
 
