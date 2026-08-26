@@ -28,5 +28,7 @@ https://my.feishu.cn/base/DNaSbjHIBaoSkks1OmHc4wjmnme?from=from_copylink
 - 写入前核验本地图片完整且数量正确。
 - 写入后回读记录，核验标题、文案、标签和图片附件均存在，且附件数量与本地一致。
 - 批量写入使用独立状态文件；状态为 running、succeeded 或 needs_confirmation 时不得盲目重复写入。
+- 所有模式共用一个串行写入队列。先为当前批次预留唯一记录，再上传并回读；当前批次完成前禁止另一写入脚本同时选择空白记录。
+- 图片数量、尺寸或接口成功不能代替内容验收；只有 [quality-gates.md](quality-gates.md) 通过后才能写入。
 - 飞书控制台输出乱码不代表写入乱码；以 API 回读字段为准。
 - 跨设备调用仓库 `scripts/feishu_delivery.py`，凭证只从本机环境变量或未纳入版本控制的 `.env` 读取。
