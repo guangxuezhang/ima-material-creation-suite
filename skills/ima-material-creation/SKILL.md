@@ -1,6 +1,6 @@
 ---
 name: ima-material-creation
-description: 从用户的 IMA 物料库检索可追溯素材，并按专属流程创作长文、营销、大字报营销或漫画笔记。用户要求创作这些笔记、调用毛选物料、选择高赞选题或指定上述笔记类型时使用。长文、营销笔记和大字报营销流程已启用；漫画须完成测试确认后启用。
+description: 从用户的 IMA 物料库检索可追溯素材，并按专属流程创作长文、营销、大字报营销或漫画笔记。用户要求创作这些笔记、调用毛选物料、选择高赞选题或指定上述笔记类型时使用。
 ---
 
 # IMA 物料创作
@@ -12,7 +12,7 @@ description: 从用户的 IMA 物料库检索可追溯素材，并按专属流�
 - 长文笔记：必须完整读取 [references/longform-note.md](references/longform-note.md) 后创作。
 - 营销笔记：必须完整读取 [references/marketing-note.md](references/marketing-note.md) 后创作。
 - 大字报＋营销图：必须完整读取 [references/poster-marketing-note.md](references/poster-marketing-note.md) 后创作。
-- 漫画笔记：尚未完成测试，不得套用长文流程。
+- 漫画笔记：必须完整读取 [references/comic-note.md](references/comic-note.md) 后创作，不得套用长文、营销或大字报流程。
 
 涉及任何模式的图片生成时，完整读取 [references/image-generation-routing.md](references/image-generation-routing.md)。营销笔记、大字报＋营销图或漫画生成完成后，完整读取 [references/feishu-delivery.md](references/feishu-delivery.md)，自动写入已配置飞书多维表格；用户明确说不写入时除外。
 
