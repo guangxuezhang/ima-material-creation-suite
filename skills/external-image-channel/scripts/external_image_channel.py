@@ -4,7 +4,6 @@ import argparse
 import base64
 import json
 import mimetypes
-import os
 import re
 import struct
 import time
@@ -13,14 +12,18 @@ from pathlib import Path
 import requests
 
 
-API_BASE = "https://api2.laozhang.ai/v1/images"
-MODEL = "gpt-image-2-vip"
-DEFAULT_KEY_FILE = Path(
-    os.environ.get(
-        "EXTERNAL_IMAGE_KEYS_FILE",
-        str(Path.home() / ".codex" / "secrets" / "image_api_keys.txt"),
-    )
-).expanduser()
+CHANNELS = {
+    "frimodel": {
+        "api_base": "https://api.frimodel.com/v1/images",
+        "model": "gpt-image-2-w",
+        "key_file": Path(r"C:\Users\86158\Documents\Codex\2026-06-20\ni\work\frimodel_api_keys.txt"),
+    },
+    "laozhang": {
+        "api_base": "https://api2.laozhang.ai/v1/images",
+        "model": "gpt-image-2-vip",
+        "key_file": Path(r"C:\Users\86158\Documents\Codex\2026-06-20\ni\work\image_api_keys.txt"),
+    },
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -29,7 +32,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--state-file", type=Path, required=True)
     parser.add_argument("--reference", type=Path)
-    parser.add_argument("--key-file", type=Path, default=DEFAULT_KEY_FILE)
+    parser.add_argument("--channel", choices=sorted(CHANNELS), default="frimodel")
+    parser.add_argument("--key-file", type=Path)
     parser.add_argument("--key-index", type=int, default=0)
     parser.add_argument("--size", default="1536x2048")
     parser.add_argument("--quality", default="high")
@@ -97,7 +101,9 @@ def main() -> None:
         if old.get("status") in {"running", "succeeded", "timeout_needs_confirmation"}:
             raise RuntimeError(f"Refusing duplicate request; state={old.get('status')}")
 
-    keys = read_keys(args.key_file)
+    channel = CHANNELS[args.channel]
+    key_file = args.key_file or channel["key_file"]
+    keys = read_keys(key_file)
     key = keys[args.key_index % len(keys)]
     prompt = args.prompt_file.read_text(encoding="utf-8").strip()
     if not prompt:
@@ -108,6 +114,9 @@ def main() -> None:
         args.state_file,
         {
             "status": "running",
+            "channel": args.channel,
+            "model": channel["model"],
+            "key_index": args.key_index % len(keys),
             "output": str(args.output),
             "reference": str(args.reference) if args.reference else None,
             "started_at": time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -122,10 +131,10 @@ def main() -> None:
             mime = mimetypes.guess_type(args.reference.name)[0] or "application/octet-stream"
             with args.reference.open("rb") as handle:
                 response = session.post(
-                    f"{API_BASE}/edits",
+                    f"{channel['api_base']}/edits",
                     headers=headers,
                     data={
-                        "model": MODEL,
+                        "model": channel["model"],
                         "prompt": prompt,
                         "size": args.size,
                         "quality": args.quality,
@@ -135,10 +144,10 @@ def main() -> None:
                 )
         else:
             response = session.post(
-                f"{API_BASE}/generations",
+                f"{channel['api_base']}/generations",
                 headers={**headers, "Content-Type": "application/json"},
                 json={
-                    "model": MODEL,
+                    "model": channel["model"],
                     "prompt": prompt,
                     "size": args.size,
                     "quality": args.quality,
@@ -156,6 +165,8 @@ def main() -> None:
             args.state_file,
             {
                 "status": "succeeded",
+                "channel": args.channel,
+                "model": channel["model"],
                 "output": str(args.output),
                 "size": list(size),
                 "bytes": len(data),

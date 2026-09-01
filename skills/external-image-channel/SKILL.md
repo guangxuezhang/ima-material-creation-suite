@@ -5,13 +5,31 @@ description: Directly generate or edit images through the user's configured exte
 
 # 外置生图通道
 
-Use the bundled `scripts/external_image_channel.py` from the current task. Do not send prompts to “维度图生成器” or any other thread.
+Use the configured external image channel in the current task. Do not send prompts to “维度图生成器” or any other thread.
 
-## Fixed configuration
+## Channel routing (fixed)
+
+- **外置生图通道一：FriModel** — default for every request that says 外置生图通道、外置通道 or asks for external generation. Supports text-to-image and image-to-image through the configured FriModel endpoint/model. Use the user's configured FriModel token; never place it in prompts, files committed to source control, commentary, or logs.
+- **外置生图通道二：laozhang** — manual-only fallback/alternative. Call it only when the user explicitly says “用 laozhang 生图/切换 laozhang 通道”. Do not silently fall back to laozhang when FriModel fails.
+- If FriModel credentials or endpoint are not configured, stop and report the missing configuration; do not substitute laozhang without explicit instruction.
+- Before sending any request, record the selected channel and model in the task state. The selected channel must match the user's explicit instruction or the default above.
+
+## FriModel configuration (default)
+
+- API base: `https://api.frimodel.com/v1/images`
+- Model: `gpt-image-2-w`
+- Key source: `C:\Users\86158\Documents\Codex\2026-06-20\ni\work\frimodel_api_keys.txt` (20 independent local routes)
+- Use `/v1/images/generations` for new images and `/v1/images/edits` when a local reference/edit target is supplied.
+
+## laozhang configuration (manual only)
 
 - API base: `https://api2.laozhang.ai/v1/images`
 - Model: `gpt-image-2-vip`
-- Key source: environment variable `EXTERNAL_IMAGE_KEYS_FILE`, or `~/.codex/secrets/image_api_keys.txt` when unset.
+- Key source: `C:\Users\86158\Documents\Codex\2026-06-20\ni\work\image_api_keys.txt`
+- This section is inactive unless the user explicitly selects laozhang.
+
+## Shared safety
+
 - Never copy API keys into prompts, skill files, source control, commentary, or command output.
 - Use `/generations` for new images and `/edits` when a local reference/edit target is supplied.
 
@@ -35,6 +53,8 @@ Example using a reference image:
 ```powershell
 python <skill-dir>\scripts\external_image_channel.py --prompt-file <prompt.txt> --reference <reference.png> --output <image.png> --state-file <state.json> --key-index 1
 ```
+
+For the manual laozhang channel, add `--channel laozhang`. Without that flag the helper always uses FriModel.
 
 ## Request safety and retries
 
